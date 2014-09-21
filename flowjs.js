@@ -1,23 +1,62 @@
 'use strict';
 var serialport = require('serialport');
 var SerialPort = require('serialport').SerialPort;
-var ls = require('underscore');
+var ld = require('lodash');
 //var serialPort = new SerialPort('/dev/tty.usbserial-A501DRCS', {
 //  baudrate: 115200,
 //  parser: serialport.parsers.raw
 //});
 
-var stripStartStopChk = function(buf) {
-  return buf.slice(1,buf.length - 2);
+module.exports = SLI1000;
+
+function SLI1000(name = 'sli1000', address = 0, port) {
+  this.name = name;
+  this.address = address;
+  this.port = port;
+  this.latestMeasurement = 0;
 };
 
+SLI1000.prototype.getSensorStatus = function() {
+  var command = 0x30;
+  var address = this.address;
+  var byteArr = [address, command];
+  addChkSum(byteArr);
+  addStartStop(byteArr);
+  dispatch;
+};
+
+SLI1000.prototype.startSingleMeasurement = function() {
+  var command = 0x31;
+  var address = this.address;
+  var byteArr = [address, command];
+  addChkSum(byteArr);
+  addStartStop(byteArr);
+  dispatch;
+};
+
+SLI1000.prototype.getSingleMeasurement = function() {
+  var command = 0x32;
+  var address = this.address;
+  var byteArr = [address, command];
+  addChkSum(byteArr);
+  addStartStop(byteArr);
+  dispatch;
+};
+
+// Reads the content of the cleaned byte array and outputs a object
+// containing the Flow meter address, which command was used to get the response
+// the state, usually an error code, the number of data containing bytes, and
+// finally the data itself.
+
 var readContent = function(buf) {
+  var buf = buf.slice(1,buf.length - 1);
   var bufferJSON = {
-    "devAddress" : buf.readUInt8(0),
-    "command" : buf.readUInt8(1),
-    "state" : buf.readUInt8(2),
-    "dataLength" : buf.readUInt8(3),
-    "dataContent" : buf.slice(4)
+    'devAddress' : buf.readUInt8(0),
+    'command' : buf.readUInt8(1),
+    'state' : buf.readUInt8(2),
+    'chksum' : buf.readUInt8(buf.length),
+    'dataLength' : buf.readUInt8(3),
+    'dataContent' : buf.slice(4,buf.length - 1)
   };
   return bufferJSON;
 };
@@ -42,16 +81,15 @@ var readData = function(dataBuf) {
   return physicalFlow;
 };
 
-var addChk = function(bArr) {
-  var byteSum = ls.reduce(bArr, function(sum, num) {
+// calculates the chksum for the byte array without stop and start
+// returns an array with the chksum pushed to the end.
+var addChkSum = function(bArr) {
+  var byteSum = ld.reduce(bArr, function(sum, num) {
     return sum + num;
   });
   chkSum = (byteSum & 0xFF) ^ 0xFF;
   bArr.push(chkSum);
   return bArr;
-  // summ arry of bytes
-  // & answer to 255 0xFF
-  // invert ^ answer by 0xFF
 };
 
 var addStartStop = function (bArr) {
@@ -64,6 +102,10 @@ var stuffIt = function(bArr) {
   // reg ex for 0x7e
   // stuff bytes to replace it
   // ret corrected bArr
+};
+
+var getSingleMeasurement = function(){
+
 };
 
 serialPort.on('open', function () {
