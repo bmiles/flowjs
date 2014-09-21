@@ -1,5 +1,6 @@
-var flow = require('flowjs.js');
-    sli1000 = new flow.sli1000();
+var flow = require('./flowjs');
+
+var ben = new flow.SLI1000('ben',0);
 
 sli1000.on("ready", function() {
 
