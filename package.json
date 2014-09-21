@@ -1,0 +1,31 @@
+{
+  "name": "flowjs",
+  "version": "0.0.0",
+  "description": "A NodeJS wrapper for the Sensirion SLI1000 liquid flow meter",
+  "main": "flowjs.js",
+  "dependencies": {
+    "lodash": "^2.4.1",
+    "serialport": "^1.4.6",
+    "underscore": "^1.7.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bmiles/flowjs.git"
+  },
+  "keywords": [
+    "serial",
+    "flow",
+    "node",
+    "sensirion"
+  ],
+  "author": "Ben Miles",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bmiles/flowjs/issues"
+  },
+  "homepage": "https://github.com/bmiles/flowjs"
+}
