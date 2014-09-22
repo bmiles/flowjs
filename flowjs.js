@@ -2,16 +2,13 @@
 var serialport = require('serialport');
 var SerialPort = require('serialport').SerialPort;
 var ld = require('lodash');
-//var serialPort = new SerialPort('/dev/tty.usbserial-A501DRCS', {
-//  baudrate: 115200,
-//  parser: serialport.parsers.raw
-//});
-
 
 // Reads the content of the cleaned byte array and outputs a object
 // containing the Flow meter address, which command was used to get the response
 // the state, usually an error code, the number of data containing bytes, and
 // finally the data itself.
+
+// Shared utility methods/////////////////////
 
 var readResponse = function(buf) {
   console.log(buf.toString());
@@ -23,9 +20,9 @@ var readResponse = function(buf) {
       'state' : buf.readUInt8(3),
       'chksum' : buf.readUInt8(buf.length -2),
       'dataLength' : buf.readUInt8(4),
-      //'responseData' : buf.readUInt8(5)
+      // responseData assignment depends on length.
     };
-    console.log(buf);
+    // DEBUG console.log(buf);
     if (bufferJSON.dataLength > 0) {
       bufferJSON.responseData = buf.slice(5,buf.length - 2);
     } else {
@@ -108,11 +105,14 @@ var errorHandler = function (state) {
   }
 };
 
+// Place holder for byte stuffing
 // var stuffIt = function(bArr) {
 //   // reg ex for 0x7e
 //   // stuff bytes to replace it
 //   // ret corrected bArr
 // };
+
+// Main class for SLI1000 flow meter.
 
 function SLI1000(name, address) {
   this.name = name;
@@ -243,25 +243,3 @@ addStartStop(byteArr);
 
 
 module.exports.SLI1000 = SLI1000;
-
-
-//
-// serialPort.on('open', function () {
-//   console.log('open');
-//   serialPort.on('data', function(data) {
-//     console.log('data received: ' + data);
-//     console.log(typeof(data));
-//     console.log('got %d bytes of data', data.length);
-//     console.log(data);
-//     var bufstring = data.slice().toString();
-//     console.log(bufstring);
-//   });
-//   //device info
-//   serialPort.write([0x7E, 0x00, 0xD0, 0x01, 0x01, 0x2D, 0x7E], function(err, results) {
-//     console.log('err ' + err);
-//     console.log('results ' + results.toString());
-//     console.log(results);
-//   });
-//   //get single measurement
-//
-// });
