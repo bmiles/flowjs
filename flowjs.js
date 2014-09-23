@@ -38,7 +38,7 @@ var readResponse = function(buf, callback) {
 var readData = function(dataBuf, callback) {
   if (dataBuf === undefined) {
     console.log('no data');
-    return callback(new Error('no data');
+    return callback(new Error('no data'));
   } else {
     var scaleFactor = 13;
     var sensorOutput = (dataBuf.readUInt8(0) << 8) + dataBuf.readUInt8(1);
@@ -57,7 +57,7 @@ var readData = function(dataBuf, callback) {
     var physicalFlow = flowTicks / scaleFactor;
     console.log(physicalFlow + ' uL/min');
     return callback(physicalFlow);
-  };
+  }
 };
 
 // calculates the chksum for the byte array without stop and start
