@@ -207,9 +207,9 @@ SLI1000.prototype.simpleGet = function(callback) {
       console.log(data);
       var content = readResponse(data, function(err, response) {
         if (!err) {
-          console.log(err);
-        } else {
           readData(response);
+        } else {
+          console.log(err);
         }
       });
       console.log(content);
