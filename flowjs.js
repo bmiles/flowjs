@@ -11,6 +11,7 @@ var ld = require('lodash');
 // Shared utility methods/////////////////////
 
 var readResponse = function(buf, callback) {
+  var callback = callback || function(a) {return a;};
   //console.log(buf.toString());
   if (buf.toString().match(/~.*~/g)) {
     //console.log(buf);
@@ -26,7 +27,7 @@ var readResponse = function(buf, callback) {
     if (response.dataLength > 0) {
       response.responseData = buf.slice(5,buf.length - 2);
     } else {
-      response.responseData = undefined;
+      response.responseData = 0x00;
     }
     return callback(response);
   } else {
