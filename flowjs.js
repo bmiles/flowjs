@@ -29,6 +29,7 @@ var readResponse = function(buf, callback) {
     } else {
       response.responseData = 0x00;
     }
+    console.log('read response fine');
     return callback(response);
   } else {
     return callback (new Error('serial read failed'));
@@ -207,7 +208,7 @@ SLI1000.prototype.simpleGet = function(callback) {
       console.log(data);
       var content = readResponse(data, function(err, response) {
         if (!err) {
-          readResponseData(response);
+          callback(readResponseData(response));
         } else {
           console.log(err);
         }
