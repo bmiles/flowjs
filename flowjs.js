@@ -189,6 +189,49 @@ SLI1000.prototype.simpleGet = function(callback) {
   });
 };
 
+SLI1000.prototype.sensorInfo = function(callback) {
+  var device = this;
+  device.serialPort.on('open', function () {
+  console.log('Serial Port Open');
+  device.serialPort.flush(function(error) {
+    device.serialPort.on('data', function(data) {
+      console.log(data);
+      var content = readResponse(data);
+      //console.log(content);
+      if (content.state === 0x00) {
+        if (content.command === 0x53) {
+          device.serialPort.close();
+          console.log('Port Closed');
+          return content.parsedData;
+        } else {
+
+        }
+      } else {
+        callback(new Error(errorHandler(content.state)));
+      }
+    });
+  });
+  // Now port is open send measurement start command.
+  var command = 0x53;
+  var address = device.address;
+  var byteArr = [address, command, 0x00];
+  addChkSum(byteArr);
+  addStartStop(byteArr);
+
+  device.serialPort.write(byteArr, function(err, results) {
+    if (!err) {
+      device.serialPort.drain(function(error) {
+        console.log('Sent: ' + byteArr);
+        //return results;
+      });
+    } else {
+      console.log(err)
+      return err;
+      }
+    });
+  });
+};
+
 SLI1000.prototype.startSingleMeasurement = function(callback) {
   var device = this;
   var command = 0x31;
