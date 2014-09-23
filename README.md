@@ -15,6 +15,20 @@ var sli1000 = new flow.SLI1000('sli1000',0);
 SLI1000 Class Methods
 =====================
 
+### simpleGet(callback)
+Combines single measurement start and get into one function to return the measurement data. Accepts a ```callback``` that has access to the ```data```.
+
+Usage:
+
+```javascript
+var sli1000 = new flow.SLI1000('sli1000',0);
+
+sli1000.simpleGet(function(data) {
+  console.log('Measurement: ' + data + ' uL/min');
+});
+
+```
+
 ### startSingleMeasurement()
 Initialises measurement on the device, and makes a reply.
 Reply contains no data.
