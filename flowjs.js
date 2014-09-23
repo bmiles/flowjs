@@ -11,7 +11,6 @@ var ld = require('lodash');
 // Shared utility methods/////////////////////
 
 var readResponse = function(buf, callback) {
-  var callback = callback || function(a) {return a;};
   //console.log(buf.toString());
   if (buf.toString().match(/~.*~/g)) {
     console.log('readResponse: ' + buf);
@@ -31,7 +30,7 @@ var readResponse = function(buf, callback) {
       //response.responseData = 0x00;
     }
     console.log('read response fine' + response);
-    callback(response);
+    return response;
   } else {
     callback (new Error('serial read failed'));
   }
@@ -135,16 +134,7 @@ SLI1000.prototype.simpleGet = function(callback) {
   device.serialPort.flush(function(error) {
     device.serialPort.on('data', function(data) {
       console.log(data);
-      var content = readResponse(data, function(err, response) {
-        if (!err) {
-          console.log('readResponse Response: ' + response);
-          console.log('readResponse data response: ' + readResponseData(response));
-          return response;
-        } else {
-          console.log('readResponse sent an error' + err);
-          return response;
-        }
-      });
+      var content = readResponse(data);
       console.log(content);
       if (content.state === 0x00) {
         if (content.command === 0x32) {
