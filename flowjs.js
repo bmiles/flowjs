@@ -11,9 +11,9 @@ var ld = require('lodash');
 // Shared utility methods/////////////////////
 
 var readResponse = function(buf) {
-  console.log(buf.toString());
+  //console.log(buf.toString());
   if (buf.toString().match(/~.*~/g)) {
-    console.log(buf);
+    //console.log(buf);
     var bufferJSON = {
       'devAddress' : buf.readUInt8(1),
       'command' : buf.readUInt8(2),
@@ -55,7 +55,7 @@ var readData = function(dataBuf) {
       var flowTicks = sensorOutput;
       }
     var physicalFlow = flowTicks / scaleFactor;
-    console.log(physicalFlow + 'uL/min');
+    console.log(physicalFlow + ' uL/min');
     return physicalFlow;
   };
 };
@@ -124,27 +124,6 @@ function SLI1000(name, address) {
   }, function(err) {
       if (err) {console.log(err);}
   });
-  var device = this;
-  // one open port per device.
-  device.serialPort.on('open', function () {
-    console.log('open');
-    device.serialPort.flush(function(error) {
-      device.serialPort.on('data', function(data) {
-        console.log(data);
-        var content = readResponse(data);
-        console.log(content);
-        if (content.state === 0x00) {
-          if (content.command === 0x32) {
-            return readData(content.responseData);
-          } else {
-            console.log('not sensor measurment');
-          }//device.serialPort.close;
-        } else {
-          return console.log(errorHandler(content.state));
-        }
-      });
-    });
-  });
 }
 
 SLI1000.prototype.getSensorStatus = function() {
@@ -158,8 +137,8 @@ SLI1000.prototype.getSensorStatus = function() {
   device.serialPort.on('open', function () {
     console.log('open');
     device.this.serialPort.on('data', function(data) {
-      console.log('data received: ' + data);
-      console.log(typeof(data));
+      //console.log('data received: ' + data);
+      //console.log(typeof(data));
       console.log('got %d bytes of data', data.length);
       console.log(data);
       var bufstring = data.slice().toString();
@@ -183,18 +162,18 @@ SLI1000.prototype.startSingleMeasurement = function(callback) {
   addChkSum(byteArr);
   addStartStop(byteArr);
   // Port open
-  // device.serialPort.on('open', function () {
-  //   console.log('open');
-  //   device.serialPort.on('data', function(data) {
-  //     var content = readResponse(data);
-  //     console.log(content);
-  //     if (content.state === 0x00) {
-  //       console.log('Single measurement started...');
-  //       //return callback;
-  //     } else {
-  //       return console.log(errorHandler(content.state));
-  //     }
-  //   });
+  device.serialPort.on('open', function () {
+    console.log('open');
+    device.serialPort.on('data', function(data) {
+      var content = readResponse(data);
+      console.log(content);
+      if (content.state === 0x00) {
+        console.log('Single measurement started...');
+        //return callback;
+      } else {
+        return console.log(errorHandler(content.state));
+      }
+    });
     // Dispatch and read or err
     device.serialPort.write(byteArr, function(err, results) {
       if (!err) {
@@ -205,41 +184,107 @@ SLI1000.prototype.startSingleMeasurement = function(callback) {
         return console.log(err);
         }
       });
-//  });
+ });
 };
 
+// Constrcut byte array
+// Open Port
+// start measurement
+// on receive from device send get command as callback.
 SLI1000.prototype.getSingleMeasurement = function() {
-var device = this;
-var command = 0x32;
-var address = device.address;
-var byteArr = [address, command, 0x00];
-addChkSum(byteArr);
-addStartStop(byteArr);
-// Port open
-// device.serialPort.on('open', function () {
-//   console.log('open');
-//   device.serialPort.on('data', function(data) {
-//     var content = readResponse(data);
-//     console.log(content);
-//     if (content.state === 0x00) {
-//       //device.serialPort.close;
-//       return readData(content.responseData);
-//     } else {
-//       return console.log(errorHandler(content.state));
-//     }
-//   });
-  // Dispatch and read or err
+  var device = this;
+  var command = 0x32;
+  var address = device.address;
+  var byteArr = [address, command, 0x00];
+  addChkSum(byteArr);
+  addStartStop(byteArr);
+  // Port open
+  device.serialPort.on('open', function () {
+    console.log('open');
+    device.serialPort.on('data', function(data) {
+      var content = readResponse(data);
+      console.log(content);
+      if (content.state === 0x00) {
+        //device.serialPort.close;
+        return readData(content.responseData);
+      } else {
+        return console.log(errorHandler(content.state));
+      }
+    });
+    //Dispatch and read or err
+    device.serialPort.write(byteArr, function(err, results) {
+      if (!err) {
+        device.serialPort.drain(function(error) {
+          return console.log('Sent: ' + byteArr);
+        });
+      } else {
+        return console.log(err);
+        }
+      });
+  });
+};
+
+SLI1000.prototype.simpleGet = function(callback) {
+  var device = this;
+  device.serialPort.on('open', function () {
+  console.log('Serial Port Open');
+  device.serialPort.flush(function(error) {
+    device.serialPort.on('data', function(data) {
+      //console.log(data);
+      var content = readResponse(data);
+      //console.log(content);
+      if (content.state === 0x00) {
+        if (content.command === 0x32) {
+          device.serialPort.close();
+          console.log('Port Closed');
+          return callback(readData(content.responseData));
+        } else {
+            // Single measurement started, so send get request.
+            setTimeout(function(){
+              console.log('Measurement Started..');
+              var command = 0x32;
+              var address = device.address;
+              var byteArr = [address, command, 0x00];
+              addChkSum(byteArr);
+              addStartStop(byteArr);
+
+              device.serialPort.write(byteArr, function(err, results) {
+                if (!err) {
+                  device.serialPort.drain(function(error) {
+                    return console.log('Sent: ' + byteArr);
+                  });
+                } else {
+                  return console.log(err);
+                  }
+                });
+            }, 100);
+          }
+      } else {
+        return console.log(errorHandler(content.state));
+      }
+    });
+  });
+  // Now port is open send measurement start command.
+  var command = 0x31;
+  var address = device.address;
+  var byteArr = [address, command, 0x00];
+  addChkSum(byteArr);
+  addStartStop(byteArr);
+
   device.serialPort.write(byteArr, function(err, results) {
     if (!err) {
       device.serialPort.drain(function(error) {
-        return console.log('Sent: ' + byteArr);
+        console.log('Sent: ' + byteArr);
+        return results;
       });
     } else {
-      return console.log(err);
+      console.log(err)
+      return err;
       }
     });
-//});
+  });
 };
+
 
 
 module.exports.SLI1000 = SLI1000;
