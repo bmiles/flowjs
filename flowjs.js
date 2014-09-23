@@ -36,6 +36,7 @@ var readResponse = function(buf, callback) {
 
 // the read data function acceps the responseData buffer from the readResponse function.
 var readData = function(dataBuf, callback) {
+  var callback = callback || function(a) {return a;};
   if (dataBuf === undefined) {
     console.log('no data');
     return callback(new Error('no data'));
