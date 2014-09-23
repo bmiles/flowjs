@@ -116,7 +116,7 @@ var errorHandler = function (state) {
 
 function SLI1000(name, address, port) {
   this.name = name;
-  this.address = address;
+  this.address = address || 0;
   this.serialPort = new SerialPort(port, {
     baudrate: 115200,
     parser: serialport.parsers.raw
@@ -124,34 +124,6 @@ function SLI1000(name, address, port) {
       if (err) {console.log(err);}
   });
 }
-
-// SLI1000.prototype.getSensorStatus = function() {
-//   var device = this;
-//   var command = 0x30;
-//   var address = this.address;
-//   var byteArr = [address, command];
-//   addChkSum(byteArr);
-//   addStartStop(byteArr);
-//
-//   device.serialPort.on('open', function () {
-//     console.log('open');
-//     device.this.serialPort.on('data', function(data) {
-//       console.log('data received: ' + data);
-//       console.log(typeof(data));
-//       console.log('got %d bytes of data', data.length);
-//       console.log(data);
-//       var bufstring = data.slice().toString();
-//       console.log(bufstring);
-//     });
-//     //device info
-//     device.serialPort.write(byteArr, function(err, results) {
-//       console.log('err ' + err);
-//       console.log('results ' + results.toString());
-//       console.log(results);
-//       device.serialPort.drain(function(error) {return;});
-//     });
-//   });
-// };
 
 SLI1000.prototype.startSingleMeasurement = function(callback) {
   var device = this;
@@ -284,6 +256,35 @@ SLI1000.prototype.simpleGet = function(callback) {
     });
   });
 };
+
+
+// SLI1000.prototype.getSensorStatus = function() {
+//   var device = this;
+//   var command = 0x30;
+//   var address = this.address;
+//   var byteArr = [address, command];
+//   addChkSum(byteArr);
+//   addStartStop(byteArr);
+//
+//   device.serialPort.on('open', function () {
+//     console.log('open');
+//     device.this.serialPort.on('data', function(data) {
+//       console.log('data received: ' + data);
+//       console.log(typeof(data));
+//       console.log('got %d bytes of data', data.length);
+//       console.log(data);
+//       var bufstring = data.slice().toString();
+//       console.log(bufstring);
+//     });
+//     //device info
+//     device.serialPort.write(byteArr, function(err, results) {
+//       console.log('err ' + err);
+//       console.log('results ' + results.toString());
+//       console.log(results);
+//       device.serialPort.drain(function(error) {return;});
+//     });
+//   });
+// };
 
 
 
