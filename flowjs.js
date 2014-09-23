@@ -10,11 +10,11 @@ var ld = require('lodash');
 
 // Shared utility methods/////////////////////
 
-var readResponse = function(buf) {
+var readResponse = function(buf, callback) {
   //console.log(buf.toString());
   if (buf.toString().match(/~.*~/g)) {
     //console.log(buf);
-    var bufferJSON = {
+    var response = {
       'devAddress' : buf.readUInt8(1),
       'command' : buf.readUInt8(2),
       'state' : buf.readUInt8(3),
@@ -23,22 +23,22 @@ var readResponse = function(buf) {
       // responseData assignment depends on length.
     };
     // DEBUG console.log(buf);
-    if (bufferJSON.dataLength > 0) {
-      bufferJSON.responseData = buf.slice(5,buf.length - 2);
+    if (response.dataLength > 0) {
+      response.responseData = buf.slice(5,buf.length - 2);
     } else {
-      bufferJSON.responseData = undefined;
+      response.responseData = undefined;
     }
-    return bufferJSON;
+    return callback(response);
   } else {
-    console.log('serial read failed');
-    return undefined; }
+    return callback (new Error('serial read failed'));
+  }
 };
 
 // the read data function acceps the responseData buffer from the readResponse function.
-var readData = function(dataBuf) {
+var readData = function(dataBuf, callback) {
   if (dataBuf === undefined) {
     console.log('no data');
-    return undefined;
+    return callback(new Error('no data');
   } else {
     var scaleFactor = 13;
     var sensorOutput = (dataBuf.readUInt8(0) << 8) + dataBuf.readUInt8(1);
@@ -56,7 +56,7 @@ var readData = function(dataBuf) {
       }
     var physicalFlow = flowTicks / scaleFactor;
     console.log(physicalFlow + ' uL/min');
-    return physicalFlow;
+    return callback(physicalFlow);
   };
 };
 
@@ -247,7 +247,7 @@ SLI1000.prototype.simpleGet = function(callback) {
     if (!err) {
       device.serialPort.drain(function(error) {
         console.log('Sent: ' + byteArr);
-        return results;
+        //return results;
       });
     } else {
       console.log(err)
