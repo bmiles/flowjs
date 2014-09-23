@@ -142,6 +142,7 @@ SLI1000.prototype.simpleGet = function(callback) {
           return response;
         } else {
           console.log('readResponse sent an error' + err);
+          return response;
         }
       });
       console.log(content);
