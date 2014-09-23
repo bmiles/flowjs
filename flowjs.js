@@ -199,7 +199,7 @@ SLI1000.prototype.sensorInfo = function(callback) {
       var content = readResponse(data);
       //console.log(content);
       if (content.state === 0x00) {
-        if (content.command === 0x53) {
+        if (content.command === 0x52) {
           device.serialPort.close();
           console.log('Port Closed');
           return content.parsedData;
@@ -212,7 +212,7 @@ SLI1000.prototype.sensorInfo = function(callback) {
     });
   });
   // Now port is open send measurement start command.
-  var command = 0x53;
+  var command = 0x52;
   var address = device.address;
   var byteArr = [address, command, 0x00];
   addChkSum(byteArr);
