@@ -14,7 +14,7 @@ var readResponse = function(buf, callback) {
   var callback = callback || function(a) {return a;};
   //console.log(buf.toString());
   if (buf.toString().match(/~.*~/g)) {
-    //console.log(buf);
+    console.log('readResponse: ' + buf);
     var response = {
       'devAddress' : buf.readUInt8(1),
       'command' : buf.readUInt8(2),
@@ -36,7 +36,7 @@ var readResponse = function(buf, callback) {
 };
 
 // the read data function acceps the responseData buffer from the readResponse function.
-var readData = function(dataBuf, callback) {
+var readResponseData = function(dataBuf, callback) {
   var callback = callback || function(a) {return a;};
   if (dataBuf === undefined) {
     console.log('no data');
@@ -179,7 +179,7 @@ SLI1000.prototype.getSingleMeasurement = function() {
       console.log(content);
       if (content.state === 0x00) {
         //device.serialPort.close;
-        return readData(content.responseData);
+        return readResponseData(content.responseData);
       } else {
         return console.log(errorHandler(content.state));
       }
@@ -207,7 +207,7 @@ SLI1000.prototype.simpleGet = function(callback) {
       console.log(data);
       var content = readResponse(data, function(err, response) {
         if (!err) {
-          readData(response);
+          readResponseData(response);
         } else {
           console.log(err);
         }
@@ -217,7 +217,7 @@ SLI1000.prototype.simpleGet = function(callback) {
         if (content.command === 0x32) {
           device.serialPort.close();
           console.log('Port Closed');
-          return callback(readData(content.responseData, function(err,result) {
+          return callback(readResponseData(content.responseData, function(err,result) {
             if (!err) {
               return result;
             } else {
