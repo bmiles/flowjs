@@ -202,7 +202,13 @@ SLI1000.prototype.simpleGet = function(callback) {
   device.serialPort.flush(function(error) {
     device.serialPort.on('data', function(data) {
       console.log(data);
-      var content = readResponse(data, readData());
+      var content = readResponse(data, function(err, response) {
+        if (!err) {
+          console.log(err);
+        } else {
+          readData(response);
+        }
+      });
       console.log(content);
       if (content.state === 0x00) {
         if (content.command === 0x32) {
