@@ -196,6 +196,7 @@ SLI1000.prototype.getSingleMeasurement = function() {
 };
 
 SLI1000.prototype.simpleGet = function(callback) {
+  var callback = callback || return;
   var device = this;
   device.serialPort.on('open', function () {
   console.log('Serial Port Open');
@@ -214,7 +215,14 @@ SLI1000.prototype.simpleGet = function(callback) {
         if (content.command === 0x32) {
           device.serialPort.close();
           console.log('Port Closed');
-          return callback(readData(content.responseData));
+          return callback(readData(content.responseData, function(err,result) {
+            if (!err) {
+              return result;
+            } else {
+              console.log(err);
+            }
+          })
+        );
         } else {
             // Single measurement started, so send get request.
             setTimeout(function(){
