@@ -31,9 +31,9 @@ var readResponse = function(buf, callback) {
       //response.responseData = 0x00;
     }
     console.log('read response fine' + response);
-    return callback(response);
+    callback(response);
   } else {
-    return callback (new Error('serial read failed'));
+    callback (new Error('serial read failed'));
   }
 };
 
