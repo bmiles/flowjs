@@ -28,7 +28,7 @@ var readResponse = function(buf, callback) {
       response.responseData = buf.slice(5,buf.length - 2);
       response.parsedData = readResponseData(response.responseData);
     } else {
-      response.responseData = 0x00;
+      //response.responseData = 0x00;
     }
     console.log('read response fine' + response);
     return callback(response);
@@ -141,7 +141,7 @@ SLI1000.prototype.simpleGet = function(callback) {
           console.log('readResponse data response: ' + readResponseData(response));
           return response;
         } else {
-          console.log(err);
+          console.log('readResponse sent an error' + err);
         }
       });
       console.log(content);
