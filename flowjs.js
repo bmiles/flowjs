@@ -13,7 +13,7 @@ var ld = require('lodash');
 var readResponse = function(buf, callback) {
   //console.log(buf.toString());
   if (buf.toString().match(/~.*~/g)) {
-    console.log('readResponse: ' + buf);
+    //console.log('readResponse: ' + buf);
     var response = {
       'devAddress' : buf.readUInt8(1),
       'command' : buf.readUInt8(2),
@@ -29,7 +29,7 @@ var readResponse = function(buf, callback) {
     } else {
       //response.responseData = 0x00;
     }
-    console.log('read response fine' + response);
+    //console.log('read response fine' + response);
     return response;
   } else {
     callback (new Error('serial read failed'));
@@ -133,9 +133,9 @@ SLI1000.prototype.simpleGet = function(callback) {
   console.log('Serial Port Open');
   device.serialPort.flush(function(error) {
     device.serialPort.on('data', function(data) {
-      console.log(data);
+      //console.log(data);
       var content = readResponse(data);
-      console.log(content);
+      //console.log(content);
       if (content.state === 0x00) {
         if (content.command === 0x32) {
           device.serialPort.close();
