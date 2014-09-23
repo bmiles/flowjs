@@ -26,6 +26,7 @@ var readResponse = function(buf, callback) {
     // DEBUG console.log(buf);
     if (response.dataLength > 0) {
       response.responseData = buf.slice(5,buf.length - 2);
+      response.parsedData = readResponseData(response.responseData);
     } else {
       response.responseData = 0x00;
     }
@@ -37,8 +38,7 @@ var readResponse = function(buf, callback) {
 };
 
 // the read data function acceps the responseData buffer from the readResponse function.
-var readResponseData = function(dataBuf, callback) {
-  var callback = callback || function(a) {return a;};
+var readResponseData = function(dataBuf) {
   if (dataBuf === undefined) {
     console.log('no data');
     return callback(new Error('no data'));
@@ -59,7 +59,7 @@ var readResponseData = function(dataBuf, callback) {
       }
     var physicalFlow = flowTicks / scaleFactor;
     console.log(physicalFlow + ' uL/min');
-    return callback(physicalFlow);
+    return physicalFlow;
   }
 };
 
@@ -128,7 +128,7 @@ function SLI1000(name, address, port) {
   });
 }
 
-SLI1000.prototype.simpleGet = function() {
+SLI1000.prototype.simpleGet = function(callback) {
   var device = this;
   device.serialPort.on('open', function () {
   console.log('Serial Port Open');
@@ -139,7 +139,7 @@ SLI1000.prototype.simpleGet = function() {
         if (!err) {
           console.log('readResponse Response: ' + response);
           console.log('readResponse data response: ' + readResponseData(response));
-          readResponseData(response);
+          return response;
         } else {
           console.log(err);
         }
@@ -149,13 +149,7 @@ SLI1000.prototype.simpleGet = function() {
         if (content.command === 0x32) {
           device.serialPort.close();
           console.log('Port Closed');
-          return readResponseData(content.responseData, function(err,result) {
-            if (!err) {
-              return result;
-            } else {
-              console.log(err);
-            }
-          });
+          return content.parsedData;
         } else {
             // Single measurement started, so send get request.
             setTimeout(function(){
