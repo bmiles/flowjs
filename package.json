@@ -5,6 +5,7 @@
   "main": "flowjs.js",
   "dependencies": {
     "lodash": "^2.4.1",
+    "q": "^1.0.1",
     "serialport": "^1.4.6"
   },
   "devDependencies": {},

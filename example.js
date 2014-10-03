@@ -1,6 +1,6 @@
 'use strict';
 
-var flow = require('./flowjs');
+var flow = require('lib/flowjs');
 
 // Instantiate new sli1000 at address 0, and on specified serial port.
 var sli1000 = new flow.SLI1000('sli1000',0,'/dev/tty.usbserial-A501DRCS');
